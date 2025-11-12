@@ -1,0 +1,331 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title th:text="${pageTitle}">SQL Injection Lab - Dashboard</title>
+    
+    <!-- Bootstrap 5 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    
+    <!-- Font Awesome -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css" rel="stylesheet">
+    
+    <style>
+        :root {
+            --danger-color: #dc3545;
+            --success-color: #198754;
+            --warning-color: #ffc107;
+        }
+        
+        body {
+            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+            min-height: 100vh;
+            padding: 20px 0;
+        }
+        
+        .main-container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        
+        .hero-section {
+            background: white;
+            border-radius: 15px;
+            padding: 40px;
+            margin-bottom: 30px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+        }
+        
+        .hero-title {
+            font-size: 3rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 20px;
+        }
+        
+        .attack-card {
+            background: white;
+            border-radius: 12px;
+            padding: 25px;
+            margin-bottom: 20px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            border-left: 5px solid var(--danger-color);
+        }
+        
+        .attack-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px rgba(0,0,0,0.15);
+        }
+        
+        .attack-icon {
+            font-size: 2.5rem;
+            margin-bottom: 15px;
+            color: var(--danger-color);
+        }
+        
+        .attack-title {
+            font-size: 1.5rem;
+            font-weight: 600;
+            margin-bottom: 10px;
+            color: #333;
+        }
+        
+        .attack-description {
+            color: #666;
+            margin-bottom: 15px;
+            font-size: 0.95rem;
+        }
+        
+        .btn-attack {
+            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+            border: none;
+            color: white;
+            padding: 10px 25px;
+            border-radius: 25px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+        
+        .btn-attack:hover {
+            transform: scale(1.05);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+            color: white;
+        }
+        
+        .badge-vulnerable {
+            background-color: var(--danger-color);
+            padding: 5px 12px;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: 600;
+        }
+        
+        .info-box {
+            background: #f8f9fa;
+            border-left: 4px solid #667eea;
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 30px;
+        }
+        
+        .footer-text {
+            text-align: center;
+            color: white;
+            margin-top: 40px;
+            font-size: 0.9rem;
+        }
+        
+        .btn-warning {
+            background: #ffc107;
+            border: none;
+            color: #000;
+            padding: 12px 30px;
+            border-radius: 25px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+        
+        .btn-warning:hover {
+            background: #ffb300;
+            transform: scale(1.05);
+            box-shadow: 0 5px 15px rgba(255, 193, 7, 0.4);
+            color: #000;
+        }
+    </style>
+</head>
+<body>
+    <div class="main-container">
+        <!-- Hero Section -->
+        <div class="hero-section text-center">
+            <h1 class="hero-title">
+                <i class="fas fa-shield-virus"></i> Laboratorio SQL Injection
+            </h1>
+            <p class="lead">Ambiente Interattivo per Apprendere le Vulnerabilità SQL Injection</p>
+            <p class="text-muted">
+                Testa 7 diversi tipi di attacchi SQL injection con implementazioni vulnerabili e sicure
+            </p>
+            <button onclick="resetDatabase()" class="btn btn-warning mt-3">
+                <i class="fas fa-redo"></i> Ripristina Database
+            </button>
+            <div id="resetMessage" style="display:none; margin-top: 15px;" class="alert"></div>
+        </div>
+        
+        <!-- Info Box -->
+        <div class="info-box">
+            <h4><i class="fas fa-info-circle"></i> Come Funziona</h4>
+            <p class="mb-0">
+                Ogni tipo di attacco ha la propria pagina di test dove puoi:
+                <strong>Eseguire payload su endpoint vulnerabili</strong> per vedere come funziona la SQL injection, e 
+                <strong>testare endpoint sicuri</strong> per vedere come i PreparedStatement proteggono dagli attacchi.
+            </p>
+        </div>
+        
+        <!-- Attack Types Grid -->
+        <div class="row">
+            <!-- Authentication Bypass -->
+            <div class="col-md-6 col-lg-4">
+                <div class="attack-card">
+                    <div class="attack-icon">
+                        <i class="fas fa-user-lock"></i>
+                    </div>
+                    <h3 class="attack-title">Bypass Autenticazione</h3>
+                    <p class="attack-description mt-2">
+                        Bypassa l'autenticazione usando commenti SQL (--) e injection OR
+                    </p>
+                    <a href="/auth-bypass" class="btn btn-attack">
+                        <i class="fas fa-play"></i> Testa Attacco
+                    </a>
+                </div>
+            </div>
+            
+            <!-- User Data Retrieval -->
+            <div class="col-md-6 col-lg-4">
+                <div class="attack-card">
+                    <div class="attack-icon">
+                        <i class="fas fa-database"></i>
+                    </div>
+                    <h3 class="attack-title">Recupero Dati</h3>
+                    <p class="attack-description mt-2">
+                        Estrai record multipli usando injection OR nelle query SELECT
+                    </p>
+                    <a href="/user-retrieval" class="btn btn-attack">
+                        <i class="fas fa-play"></i> Testa Attacco
+                    </a>
+                </div>
+            </div>
+            
+            <!-- UNION-Based -->
+            <div class="col-md-6 col-lg-4">
+                <div class="attack-card">
+                    <div class="attack-icon">
+                        <i class="fas fa-link"></i>
+                    </div>
+                    <h3 class="attack-title">UNION-Based</h3>
+                    <p class="attack-description mt-2">
+                        Usa UNION SELECT per estrarre dati sensibili da altre tabelle
+                    </p>
+                    <a href="/union-injection" class="btn btn-attack">
+                        <i class="fas fa-play"></i> Testa Attacco
+                    </a>
+                </div>
+            </div>
+            
+            <!-- Time-Based Blind -->
+            <div class="col-md-6 col-lg-4">
+                <div class="attack-card">
+                    <div class="attack-icon">
+                        <i class="fas fa-clock"></i>
+                    </div>
+                    <h3 class="attack-title">Time-Based Blind</h3>
+                    <p class="attack-description mt-2">
+                        Rileva injection misurando il tempo di risposta con la funzione SLEEP()
+                    </p>
+                    <a href="/time-based-blind" class="btn btn-attack">
+                        <i class="fas fa-play"></i> Testa Attacco
+                    </a>
+                </div>
+            </div>
+            
+            <!-- Boolean-Based Blind -->
+            <div class="col-md-6 col-lg-4">
+                <div class="attack-card">
+                    <div class="attack-icon">
+                        <i class="fas fa-question-circle"></i>
+                    </div>
+                    <h3 class="attack-title">Boolean-Based Blind</h3>
+                    <p class="attack-description mt-2">
+                        Estrai dati carattere per carattere usando query SUBSTRING()
+                    </p>
+                    <a href="/boolean-blind" class="btn btn-attack">
+                        <i class="fas fa-play"></i> Testa Attacco
+                    </a>
+                </div>
+            </div>
+            
+            <!-- Error-Based -->
+            <div class="col-md-6 col-lg-4">
+                <div class="attack-card">
+                    <div class="attack-icon">
+                        <i class="fas fa-exclamation-triangle"></i>
+                    </div>
+                    <h3 class="attack-title">Error-Based</h3>
+                    <p class="attack-description mt-2">
+                        Estrai informazioni attraverso messaggi di errore SQL
+                    </p>
+                    <a href="/error-based" class="btn btn-attack">
+                        <i class="fas fa-play"></i> Testa Attacco
+                    </a>
+                </div>
+            </div>
+            
+            <!-- Second Order -->
+            <div class="col-md-6 col-lg-4">
+                <div class="attack-card">
+                    <div class="attack-icon">
+                        <i class="fas fa-sync-alt"></i>
+                    </div>
+                    <h3 class="attack-title">Second Order</h3>
+                    <p class="attack-description mt-2">
+                        Memorizza payload malevolo nel database, poi eseguilo al recupero
+                    </p>
+                    <a href="/second-order" class="btn btn-attack">
+                        <i class="fas fa-play"></i> Testa Attacco
+                    </a>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Footer -->
+        <div class="footer-text">
+            <p>
+                <i class="fas fa-graduation-cap"></i> Solo Scopo Didattico | 
+                <i class="fas fa-github"></i> Laboratorio SQL Injection v1.0.0
+            </p>
+        </div>
+    </div>
+    
+    <!-- Bootstrap 5 JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        async function resetDatabase() {
+            const btn = event.target;
+            const msg = document.getElementById('resetMessage');
+            
+            btn.disabled = true;
+            btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Resetting...';
+            
+            try {
+                const response = await fetch('/reset-db', {
+                    method: 'POST'
+                });
+                
+                const result = await response.json();
+                
+                msg.style.display = 'block';
+                if (response.ok) {
+                    msg.className = 'alert alert-success';
+                    msg.innerHTML = '<i class="fas fa-check-circle"></i> ' + result.message;
+                } else {
+                    msg.className = 'alert alert-danger';
+                    msg.innerHTML = '<i class="fas fa-exclamation-circle"></i> ' + result.message;
+                }
+                
+                setTimeout(() => {
+                    msg.style.display = 'none';
+                }, 3000);
+            } catch (error) {
+                msg.style.display = 'block';
+                msg.className = 'alert alert-danger';
+                msg.innerHTML = '<i class="fas fa-exclamation-circle"></i> Error: ' + error.message;
+            } finally {
+                btn.disabled = false;
+                btn.innerHTML = '<i class="fas fa-redo"></i> Reset Database';
+            }
+        }
+    </script>
+</body>
+</html>

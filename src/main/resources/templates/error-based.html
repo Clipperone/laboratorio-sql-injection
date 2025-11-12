@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Error-Based SQL Injection</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css" rel="stylesheet">
+    <style>
+        body { background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%); min-height: 100vh; padding: 20px; }
+        .container { max-width: 1400px; }
+        .card { border-radius: 12px; box-shadow: 0 5px 15px rgba(0,0,0,0.1); }
+        .header { background: white; border-radius: 15px; padding: 30px; margin-bottom: 20px; }
+        .vuln { border-left: 4px solid #dc3545; }
+        .secure { border-left: 4px solid #198754; }
+        .btn-vuln { background: #dc3545; color: white; border: none; padding: 10px 30px; border-radius: 25px; }
+        .btn-sec { background: #198754; color: white; border: none; padding: 10px 30px; border-radius: 25px; }
+        .result { padding: 20px; border-radius: 8px; margin-top: 20px; display: none; }
+        .result.critical { background: #f8d7da; border: 2px solid #dc3545; }
+        .result.safe { background: #d1e7dd; border: 2px solid #198754; }
+        .payload-item { transition: all 0.2s ease; }
+        .payload-item:hover { background: #e9ecef !important; transform: translateX(5px); }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <a href="/" style="color: #667eea; text-decoration: none;"><i class="fas fa-arrow-left"></i> Indietro</a>
+            <h1 class="mt-3">SQL Injection Error-Based</h1>
+        </div>
+        <div class="card p-4 vuln">
+            <h3>Vulnerabile</h3>
+            <form onsubmit="testVuln(event)">
+                <div class="mb-3">
+                    <label>ID Utente</label>
+                    <input type="text" class="form-control" id="userIdVuln" required>
+                </div>
+                <button type="submit" class="btn-vuln">Testa</button>
+            </form>
+            <div style="background: #f8f9fa; border-radius: 8px; padding: 15px; margin-top: 15px;">
+                <h6><i class="fas fa-code"></i> Payload di Esempio (Clicca per usare):</h6>
+                <div class="payload-item" style="background: white; padding: 8px 12px; border-radius: 6px; margin-bottom: 5px; font-family: 'Courier New', monospace; font-size: 0.85rem; color: #dc3545; cursor: pointer;" onclick="document.getElementById('userIdVuln').value=&quot;1'&quot;">
+                    <strong>Errore sintassi:</strong> 1'
+                </div>
+                <div class="payload-item" style="background: white; padding: 8px 12px; border-radius: 6px; margin-bottom: 5px; font-family: 'Courier New', monospace; font-size: 0.85rem; color: #dc3545; cursor: pointer;" onclick="document.getElementById('userIdVuln').value=&quot;1' AND invalid_column=1--&quot;">
+                    <strong>Errore colonna:</strong> 1' AND invalid_column=1--
+                </div>
+            </div>
+            <div id="resVuln" class="result"></div>
+        </div>
+    </div>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-sql.min.js"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-tomorrow.min.css" rel="stylesheet">
+    <script>
+        async function testVuln(e) {
+            e.preventDefault();
+            const id = document.getElementById('userIdVuln').value;
+            const res = await fetch('/error-based/vulnerable', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/x-www-form-urlencoded'},
+                body: `userId=${encodeURIComponent(id)}`
+            });
+            displayResult('resVuln', await res.json());
+        }
+
+        function escapeHtml(text) {
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+        function displayResult(containerId, data) {
+            const container = document.getElementById(containerId);
+            container.style.display = 'block';
+            
+            let severityColor = data.severity === 'CRITICAL' ? '#dc3545' : 
+                               data.severity === 'ERROR' ? '#ffc107' : '#198754';
+            
+            let html = '';
+            
+            if (data.data && data.data.trim() !== '') {
+                html += `
+                    <div style="background: #f8f9fa; border: 2px solid ${severityColor}; border-radius: 8px; padding: 15px; margin-bottom: 15px;">
+                        <div style="font-weight: 600; margin-bottom: 10px; color: #333;">📊 Query Result:</div>
+                        <div style="background: white; padding: 12px; border-radius: 6px; font-family: 'Courier New', monospace; white-space: normal; text-align: left; color: #000;">
+                            ${escapeHtml(data.data.trim())}
+                        </div>
+                    </div>
+                `;
+            }
+            
+            html += `
+                <div class="result-message" style="padding: 15px; background: ${data.severity === 'CRITICAL' ? '#f8d7da' : '#d1e7dd'}; 
+                     border-left: 4px solid ${severityColor}; border-radius: 8px; margin-bottom: 15px; font-weight: 500;">
+                    ${data.message}
+                </div>
+                <div class="query-box" style="background: #2d2d2d; padding: 15px; border-radius: 8px; margin-bottom: 15px; overflow-x: auto;">
+                    <div style="color: #aaa; font-size: 0.85rem; margin-bottom: 8px;">Executed Query:</div>
+                    <code class="language-sql" style="color: #f8f8f2; font-family: 'Courier New', monospace; font-size: 0.9rem;">${escapeHtml(data.query)}</code>
+                </div>
+                <div class="stats-row" style="display: flex; justify-content: space-between; padding: 10px; background: #f8f9fa; border-radius: 8px; font-size: 0.9rem;">
+                    <span><strong>Execution Time:</strong> ${data.duration}ms</span>
+                    <span><strong>Status:</strong> <span style="color: ${severityColor};">${data.severity}</span></span>
+                </div>
+            `;
+            
+            container.innerHTML = html;
+            if (typeof Prism !== 'undefined') {
+                Prism.highlightAllUnder(container);
+            }
+        }
+    </script>
+</body>
+</html>

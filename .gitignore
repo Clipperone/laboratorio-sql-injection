@@ -1,0 +1,176 @@
+# Maven
+target/
+pom.xml.tag
+pom.xml.releaseBackup
+pom.xml.versionsBackup
+pom.xml.bak
+release.properties
+.flattened-pom.xml
+
+# IDE - IntelliJ IDEA
+.idea/
+*.iml
+*.iws
+*.ipr
+out/
+.classpath
+.c9/
+*.launch
+.settings/
+*.sublime-workspace
+
+# IDE - Eclipse
+.eclipse/
+.project
+.pydevproject
+.settings/
+*.launch
+
+# IDE - VS Code
+.vscode/
+.history/
+*.code-workspace
+
+# IDE - NetBeans
+.nb-gradle/
+.nbattrs
+
+# Build directories
+build/
+dist/
+.gradle/
+.mvn/
+
+# Spring Boot
+application-local.properties
+application-dev.properties
+application-prod.properties
+
+# Compiled class file
+*.class
+
+# Log file
+*.log
+
+# Package Files #
+*.jar
+*.war
+*.nar
+*.ear
+*.zip
+*.tar.gz
+*.rar
+
+# Covers JetBrains IDEs: IntelliJ, RubyMine, PhpStorm, AppCode, PyCharm, CLion, Android Studio, WebStorm and Rider
+# Reference: https://intellij-support.jetbrains.com/hc/en-us/articles/206544839
+
+# User-specific stuff
+.idea/**/workspace.xml
+.idea/**/tasks.xml
+.idea/**/usage.statistics.xml
+.idea/**/dictionaries
+.idea/**/shelf
+
+# Generated files
+.idea/**/contentModel.xml
+
+# Sensitive or high-churn files
+.idea/**/dataSources/
+.idea/**/dataSources.ids
+.idea/**/dataSources.local.xml
+.idea/**/sqlDataSources.xml
+.idea/**/dynamic.xml
+.idea/**/uriHistory.xml
+
+# Gradle
+.gradle
+build/
+
+# Gradle and Maven with auto-import
+.idea/gradle.xml
+.idea/libraries
+
+# Maven wrapper
+.mvn/wrapper/maven-wrapper.jar
+.mvn/wrapper/maven-wrapper.properties
+
+# JetBrains Rider
+.idea/
+*.sln.iml
+
+# Java
+*.class
+*.log
+*.ctxt
+.mtj.tmp/
+*.ear
+*.zip
+*.tar.gz
+*.rar
+
+# Virtual machine crash logs, see http://www.java.sun.com/products/jvm/crash.html
+hs_err_pid*
+
+# OS Files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+.AppleDouble
+.LSOverride
+
+# Local environment files
+.env
+.env.local
+.env.*.local
+*.swp
+*.swo
+*~
+
+# Node (if any frontend build)
+node_modules/
+npm-debug.log
+yarn-error.log
+
+# STS (Spring Tool Suite)
+.sts4-cache/
+
+# IntelliJ
+*.iml
+.idea/modules.xml
+.idea/misc.xml
+.idea/vcs.xml
+.idea/jarRepositories.xml
+
+# NetBeans
+/nbproject/private/
+/nbdist/
+/.nb-gradle/
+
+# Package managers
+.m2/
+package-lock.json
+yarn.lock
+
+# Database files
+*.db
+*.sqlite
+*.sqlite3
+
+# Temporary files
+tmp/
+temp/
+*.tmp
+*.bak
+*.swo
+*.swp
+
+# Application properties with secrets
+application.properties.local
+application-local.properties
+
+# H2 console
+h2/

