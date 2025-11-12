@@ -126,11 +126,22 @@ public class WebViewController {
             String result = userService.searchUserByName(searchName);
             long duration = System.currentTimeMillis() - startTime;
             
-            boolean isVulnerable = result != null && (result.contains("4532") || result.contains("5555"));
+            boolean isVulnerable = result != null && (result.contains("4532") || result.contains("5555") || result.toLowerCase().contains("sqlite"));
+            
+            String message;
+            if (isVulnerable && result != null) {
+                if (result.toLowerCase().contains("sqlite")) {
+                    message = "🚨 VULNERABILE! Versione database esposta: " + result;
+                } else {
+                    message = "🚨 VULNERABILE! Dati carta di credito esposti: " + result;
+                }
+            } else {
+                message = "✅ Risultato ricerca normale";
+            }
             
             return new AttackResult(
                 isVulnerable,
-                isVulnerable ? "🚨 VULNERABILE! Dati carta di credito esposti: " + result : "✅ Risultato ricerca normale",
+                message,
                 "SELECT name FROM users WHERE name LIKE '%" + searchName + "%'",
                 duration,
                 isVulnerable ? "CRITICAL" : "SAFE",

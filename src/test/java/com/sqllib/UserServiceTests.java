@@ -26,7 +26,7 @@ public class UserServiceTests {
     public void setUp() throws SQLException {
         userService = new UserService();
         
-        // Initialize the database only once
+        // Inizializza il database solo una volta
         if (!initialized) {
             initializeDatabase();
             initialized = true;
@@ -38,7 +38,7 @@ public class UserServiceTests {
             jdbcTemplate.execute("DROP TABLE IF EXISTS users");
             jdbcTemplate.execute("DROP TABLE IF EXISTS sensitive_data");
         } catch (RuntimeException e) {
-            // Ignore if table does not exist
+            // Ignora se la tabella non esiste
         }
         
         jdbcTemplate.execute("CREATE TABLE users (" +
@@ -66,12 +66,12 @@ public class UserServiceTests {
     @Test
     @DisplayName("❌ VULNERABLE: Authentication bypass with SQL comment")
     public void testAuthenticationBypassVulnerable() throws SQLException {
-        // Re-initialize database to ensure admin user exists with correct password
+        // Re-inizializza il database per assicurarsi che l'utente admin esista con la password corretta
         try {
             jdbcTemplate.execute("DELETE FROM users WHERE id=1");
             jdbcTemplate.execute("INSERT INTO users (id, username, password, email) VALUES (1, 'admin', 'secret123', 'admin@example.com')");
         } catch (Exception e) {
-            // Ignore if already exists
+            // Ignora se esiste già
         }
         
         String username = "admin' --";
@@ -105,42 +105,46 @@ public class UserServiceTests {
         String id = "1' OR '1'='1";
         String result = userService.getUserById(id);
         
-        // If injection worked, multiple users are returned instead of just one
-        if (result != null && result.contains(",")) {
-            fail("💥 CRITICAL VULNERABILITY: SQL injection in getUserById exposed ALL users! " +
-                 "Payload: " + id + " | Result: " + result);
+        // Se l'iniezione funziona, vengono restituiti più utenti invece di uno solo
+        // Conta il numero di utenti verificando quante email sono presenti nel risultato
+        if (result != null) {
+            long userCount = result.chars().filter(ch -> ch == ',').count();
+            if (userCount > 1) {
+                fail("💥 CRITICAL VULNERABILITY: SQL injection in getUserById exposed ALL users! " +
+                     "Payload: " + id + " | Found " + userCount + " users | Result: " + result);
+            }
         }
     }
 
     @Test
     @DisplayName("❌ VULNERABLE: Second Order SQL Injection - Complete Attack Flow")
     public void testSecondOrderInjection() throws SQLException {
-        // This test demonstrates the complete Second Order SQL Injection attack:
-        // Step 1: Store malicious data → Step 2: Execute stored injection
+        // Questo test dimostra il flusso completo dell'attacco Second Order SQL Injection:
+        // Passo 1: Memorizza dati malevoli → Passo 2: Esegue l'iniezione memorizzata
         
         String maliciousUsername = "hackerr'' or 1=1--";
         String password = "password123";
         String email = "hacker@example.com";
         
         try {
-            // STEP 1: Store malicious username in database
+            // PASSO 1: Memorizza lo username malevolo nel database
             int userId = userService.createUser(maliciousUsername, password, email);
             
             if (userId <= 0) {
-                return; // User creation failed, test inconclusive
+                return; // Creazione utente fallita, test non conclusivo
             }
             
-            // STEP 2: Retrieve user profile by ID, triggering the stored SQL injection
+            // PASSO 2: Recupera il profilo utente tramite ID, attivando l'SQL injection memorizzata
             String result = userService.getUserProfile(String.valueOf(userId));
             
-            // If injection worked, result will contain multiple emails (from or 1=1)
+            // Se l'iniezione funziona, il risultato conterrà più email (da or 1=1)
             if (result != null && result.contains(",")) {
                 fail("💥 CRITICAL VULNERABILITY: Second Order SQL Injection executed! " +
                      "Malicious username '" + maliciousUsername + "' exposed multiple user emails: " + result);
             }
             
         } catch (SQLException e) {
-            // SQL error might indicate vulnerability exists
+            // Un errore SQL potrebbe indicare che la vulnerabilità esiste
             if (e.getMessage().contains("syntax")) {
                 fail("💥 VULNERABILITY: Second Order SQL Injection attempted but failed with syntax error: " + e.getMessage());
             }
@@ -150,21 +154,21 @@ public class UserServiceTests {
     @Test
     @DisplayName("❌ VULNERABLE: Boolean-based Blind SQL Injection")
     public void testBooleanBasedBlindInjection() throws SQLException {
-        // Re-initialize database to ensure admin user exists with correct password
+        // Re-inizializza il database per assicurarsi che l'utente admin esista con la password corretta
         try {
             jdbcTemplate.execute("DELETE FROM users WHERE id=1");
             jdbcTemplate.execute("INSERT INTO users (id, username, password, email) VALUES (1, 'admin', 'secret123', 'admin@example.com')");
         } catch (Exception e) {
-            // Ignore if already exists
+            // Ignora se esiste già
         }
         
-        // Attacker extracts password character by character
-        // Example: Check if first character of admin's password is 's'
+        // L'attaccante estrae la password carattere per carattere
+        // Esempio: Verifica se il primo carattere della password di admin è 's'
         String payload = "admin' AND SUBSTRING(password,1,1)='s'--";
         
         boolean exists = userService.checkUserExists(payload);
         
-        // If exists=true, the injection worked and revealed that password starts with 's'
+        // Se exists=true, l'iniezione ha funzionato e ha rivelato che la password inizia con 's'
         if (exists) {
             fail("💥 CRITICAL VULNERABILITY: Boolean-based Blind SQL Injection allows password extraction! " +
                  "Payload: " + payload + " | Injection confirmed password starts with 's'");
@@ -174,7 +178,7 @@ public class UserServiceTests {
     @Test
     @DisplayName("❌ VULNERABLE: Time-based Blind SQL Injection with SLEEP()")
     public void testTimeBasedBlindInjection() throws SQLException {
-        // Time-based blind injection using custom SLEEP() function
+        // Iniezione time-based blind usando la funzione custom SLEEP()
         String payload = "1' AND SLEEP(3)--";
         
         long startTime = System.currentTimeMillis();
@@ -182,7 +186,7 @@ public class UserServiceTests {
         long endTime = System.currentTimeMillis();
         long duration = endTime - startTime;
         
-        // If duration >= 2500ms, SLEEP(3) was executed, proving vulnerability
+        // Se la durata >= 2500ms, SLEEP(3) è stato eseguito, dimostrando la vulnerabilità
         if (duration >= 2500) {
             fail("💥 CRITICAL VULNERABILITY: Time-based Blind SQL Injection executed SLEEP(3)! " +
                  "Payload: " + payload + " | Duration: " + duration + "ms | Allows password extraction via timing attacks");
@@ -192,7 +196,7 @@ public class UserServiceTests {
     @Test
     @DisplayName("❌ VULNERABLE: UNION-based SQL Injection - Extract sensitive data")
     public void testUNIONBasedInjection() throws SQLException {
-        // First, ensure sensitive_data table exists with test data
+        // Prima, assicurati che la tabella sensitive_data esista con i dati di test
         try {
             jdbcTemplate.execute("DROP TABLE IF EXISTS sensitive_data");
             jdbcTemplate.execute("CREATE TABLE sensitive_data (" +
@@ -203,22 +207,22 @@ public class UserServiceTests {
             jdbcTemplate.execute("INSERT INTO sensitive_data (secret_key, credit_card, ssn) " +
                     "VALUES ('API_KEY_12345', '4532111122223333', '123-45-6789')");
         } catch (RuntimeException e) {
-            // Table might already exist, continue
+            // La tabella potrebbe già esistere, continua
         }
         
-        // UNION-based attack to extract credit card numbers
+        // Attacco UNION-based per estrarre numeri di carte di credito
         String payload = "' UNION SELECT credit_card FROM sensitive_data--";
         
         try {
             String result = userService.searchUserByName(payload);
             
-            // If UNION injection worked, result contains credit card numbers
+            // Se l'iniezione UNION ha funzionato, il risultato contiene numeri di carte di credito
             if (result != null && (result.contains("4532") || result.contains("5555"))) {
                 fail("💥 CRITICAL VULNERABILITY: UNION-based SQL Injection exposed credit card data! " +
                      "Payload: " + payload + " | Exposed data: " + result);
             }
         } catch (SQLException e) {
-            // SQL error might indicate vulnerability exists
+            // Un errore SQL potrebbe indicare che la vulnerabilità esiste
             if (e.getMessage().contains("UNION") || e.getMessage().contains("SELECT")) {
                 fail("💥 VULNERABILITY: UNION injection attempted but syntax error occurred: " + e.getMessage());
             }
@@ -228,12 +232,12 @@ public class UserServiceTests {
     @Test
     @DisplayName("❌ VULNERABLE: Error-Based SQL Injection - Database error reveals structure")
     public void testErrorBasedInjection() throws SQLException {
-        // Error-based attack: Invalid SQL syntax to trigger database error
+        // Attacco error-based: sintassi SQL non valida per generare un errore del database
         String payload = "1'";
         
         String result = userService.getUserPassword(payload);
         
-        // If error message is exposed to user, it's a critical vulnerability
+        // Se il messaggio di errore è esposto all'utente, è una vulnerabilità critica
         if (result != null && (result.contains("SQL ERROR") || result.contains("error") || result.contains("ERROR"))) {
             fail("💥 CRITICAL VULNERABILITY: Error-Based SQL Injection exposes database error message! " +
                  "Payload: " + payload + " | Exposed error: " + result);

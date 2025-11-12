@@ -38,11 +38,8 @@
             </form>
             <div style="background: #f8f9fa; border-radius: 8px; padding: 15px; margin-top: 15px;">
                 <h6><i class="fas fa-code"></i> Payload di Esempio (Clicca per usare):</h6>
-                <div class="payload-item" style="background: white; padding: 8px 12px; border-radius: 6px; margin-bottom: 5px; font-family: 'Courier New', monospace; font-size: 0.85rem; color: #dc3545; cursor: pointer;" onclick="document.getElementById('userIdVuln').value=&quot;1'&quot;">
-                    <strong>Errore sintassi:</strong> 1'
-                </div>
-                <div class="payload-item" style="background: white; padding: 8px 12px; border-radius: 6px; margin-bottom: 5px; font-family: 'Courier New', monospace; font-size: 0.85rem; color: #dc3545; cursor: pointer;" onclick="document.getElementById('userIdVuln').value=&quot;1' AND invalid_column=1--&quot;">
-                    <strong>Errore colonna:</strong> 1' AND invalid_column=1--
+                <div class="payload-item" style="background: white; padding: 8px 12px; border-radius: 6px; margin-bottom: 5px; font-family: 'Courier New', monospace; font-size: 0.85rem; color: #dc3545; cursor: pointer;" onclick="document.getElementById('userIdVuln').value=&quot;1 OR (SELECT 1 FROM alpha)&quot;">
+                    <strong>Errore tabella:</strong> 1 OR (SELECT 1 FROM alpha)
                 </div>
             </div>
             <div id="resVuln" class="result"></div>
