@@ -95,7 +95,7 @@ WebViewController
     ↓
 Template Thymeleaf (dashboard.html, auth-bypass.html, ecc.)
     ↓
-L'utente clicca "Testa Attacco" → POST /api/users?username=admin'--
+L'utente clicca "Test Attacco" → POST /api/users?username=admin'--
     ↓
 Flusso REST API (vedi sotto)
 ```

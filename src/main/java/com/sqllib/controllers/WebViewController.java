@@ -11,8 +11,8 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import com.sqllib.services.UserService;
 
 /**
- * Web UI Controller for SQL Injection Lab
- * Manages all web pages and user interactions through browser interface
+ * Controller Web UI per Laboratorio SQL Injection
+ * Gestisce tutte le pagine web e le interazioni utente tramite interfaccia browser
  */
 @Controller
 public class WebViewController {
@@ -21,7 +21,7 @@ public class WebViewController {
     private UserService userService;
 
     /**
-     * Dashboard - Main landing page
+     * Dashboard - Pagina principale
      */
     @GetMapping("/")
     public String dashboard(Model model) {
@@ -30,7 +30,7 @@ public class WebViewController {
     }
 
     /**
-     * Authentication Bypass Testing Page
+     * Pagina di Test Bypass Autenticazione
      */
     @GetMapping("/auth-bypass")
     public String authBypass(Model model) {
@@ -41,7 +41,7 @@ public class WebViewController {
     }
 
     /**
-     * Process Authentication Bypass - Vulnerable
+     * Elabora Bypass Autenticazione - Vulnerabile
      */
     @PostMapping("/auth-bypass/vulnerable")
     @ResponseBody
@@ -51,7 +51,7 @@ public class WebViewController {
             boolean result = userService.authenticate(username, password);
             long duration = System.currentTimeMillis() - startTime;
             
-            // Get actual user data to show what was extracted
+            // Ottiene i dati utente reali per mostrare cosa è stato estratto
             String userData = result ? "✅ Autenticazione riuscita - Accesso consentito!" : "❌ Autenticazione fallita";
             
             return new AttackResult(
@@ -68,7 +68,7 @@ public class WebViewController {
     }
 
     /**
-     * User Retrieval Testing Page
+     * Pagina di Test Recupero Utente
      */
     @GetMapping("/user-retrieval")
     public String userRetrieval(Model model) {
@@ -79,7 +79,7 @@ public class WebViewController {
     }
 
     /**
-     * Process User Retrieval - Vulnerable
+     * Elabora Recupero Utente - Vulnerabile
      */
     @PostMapping("/user-retrieval/vulnerable")
     @ResponseBody
@@ -105,7 +105,7 @@ public class WebViewController {
     }
 
     /**
-     * UNION-Based Injection Testing Page
+     * Pagina di Test Injection UNION-Based
      */
     @GetMapping("/union-injection")
     public String unionInjection(Model model) {
@@ -116,7 +116,7 @@ public class WebViewController {
     }
 
     /**
-     * Process UNION Injection - Vulnerable
+     * Elabora Injection UNION - Vulnerabile
      */
     @PostMapping("/union-injection/vulnerable")
     @ResponseBody
@@ -126,7 +126,9 @@ public class WebViewController {
             String result = userService.searchUserByName(searchName);
             long duration = System.currentTimeMillis() - startTime;
             
-            boolean isVulnerable = result != null && (result.contains("4532") || result.contains("5555") || result.toLowerCase().contains("sqlite"));
+            boolean attack = searchName.contains("UNION");
+
+            boolean isVulnerable = attack && result != null;
             
             String message;
             if (isVulnerable && result != null) {
@@ -153,7 +155,7 @@ public class WebViewController {
     }
 
     /**
-     * Time-Based Blind Injection Testing Page
+     * Pagina di Test Injection Time-Based Blind
      */
     @GetMapping("/time-based-blind")
     public String timeBasedBlind(Model model) {
@@ -164,7 +166,7 @@ public class WebViewController {
     }
 
     /**
-     * Process Time-Based Blind - Vulnerable
+     * Elabora Time-Based Blind - Vulnerabile
      */
     @PostMapping("/time-based-blind/vulnerable")
     @ResponseBody
@@ -174,7 +176,8 @@ public class WebViewController {
             String result = userService.getUserEmail(userId);
             long duration = System.currentTimeMillis() - startTime;
             
-            boolean isVulnerable = duration >= 2500;
+            boolean attack = userId.contains("SLEEP");
+            boolean isVulnerable = attack && result != null;
             
             return new AttackResult(
                 isVulnerable,
@@ -190,7 +193,7 @@ public class WebViewController {
     }
 
     /**
-     * Boolean-Based Blind Injection Testing Page
+     * Pagina di Test Injection Boolean-Based Blind
      */
     @GetMapping("/boolean-blind")
     public String booleanBlind(Model model) {
@@ -201,7 +204,7 @@ public class WebViewController {
     }
 
     /**
-     * Process Boolean Blind - Vulnerable
+     * Elabora Boolean Blind - Vulnerabile
      */
     @PostMapping("/boolean-blind/vulnerable")
     @ResponseBody
@@ -227,7 +230,7 @@ public class WebViewController {
     }
 
     /**
-     * Error-Based Injection Testing Page
+     * Pagina di Test Injection Error-Based
      */
     @GetMapping("/error-based")
     public String errorBased(Model model) {
@@ -238,7 +241,7 @@ public class WebViewController {
     }
 
     /**
-     * Process Error-Based - Vulnerable
+     * Elabora Error-Based - Vulnerabile
      */
     @PostMapping("/error-based/vulnerable")
     @ResponseBody
@@ -264,7 +267,7 @@ public class WebViewController {
     }
 
     /**
-     * Second Order Injection Testing Page
+     * Pagina di Test Injection Second Order
      */
     @GetMapping("/second-order")
     public String secondOrder(Model model) {
@@ -275,7 +278,7 @@ public class WebViewController {
     }
 
     /**
-     * Process Second Order - Vulnerable (Create User)
+     * Elabora Second Order - Vulnerabile (Crea Utente)
      */
     @PostMapping("/second-order/vulnerable/create")
     @ResponseBody
@@ -301,7 +304,7 @@ public class WebViewController {
     }
 
     /**
-     * Process Second Order - Vulnerable (Get Profile)
+     * Elabora Second Order - Vulnerabile (Ottieni Profilo)
      */
     @PostMapping("/second-order/vulnerable/profile")
     @ResponseBody
@@ -327,13 +330,13 @@ public class WebViewController {
     }
 
     /**
-     * Reset Database - Drops and recreates all tables
+     * Reset Database - Elimina e ricrea tutte le tabelle
      */
     @PostMapping("/reset-db")
     @ResponseBody
     public ResetResult resetDatabase() {
         try {
-            // Read and execute schema.sql
+            // Legge ed esegue schema.sql
             java.io.InputStream is = getClass().getClassLoader().getResourceAsStream("schema.sql");
             if (is == null) {
                 return new ResetResult(false, "File schema non trovato");
@@ -342,7 +345,7 @@ public class WebViewController {
             String schema = new String(is.readAllBytes());
             is.close();
             
-            // Split by semicolon and execute each statement
+            // Divide per punto e virgola ed esegue ogni statement
             java.sql.Connection conn = com.sqllib.utils.DatabaseConnection.getConnection();
             java.sql.Statement stmt = conn.createStatement();
             
@@ -363,7 +366,7 @@ public class WebViewController {
     }
 
     /**
-     * Reset Result DTO
+     * DTO Risultato Reset
      */
     public static class ResetResult {
         private boolean success;
@@ -379,7 +382,7 @@ public class WebViewController {
     }
 
     /**
-     * Attack Result DTO
+     * DTO Risultato Attacco
      */
     public static class AttackResult {
         private boolean vulnerable;

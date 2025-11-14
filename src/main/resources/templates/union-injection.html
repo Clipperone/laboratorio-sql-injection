@@ -6,27 +6,10 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/atom-one-dark.min.css" rel="stylesheet">
+    <link href="/css/attack-pages.css" rel="stylesheet">
     <style>
-        :root { --danger-color: #dc3545; --success-color: #198754; --primary-gradient: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%); }
-        body { background: var(--primary-gradient); min-height: 100vh; padding: 20px 0; }
         .main-container { max-width: 1400px; margin: 0 auto; }
         .header-section { background: white; border-radius: 15px; padding: 30px; margin-bottom: 30px; box-shadow: 0 10px 30px rgba(0,0,0,0.2); }
-        .page-title { font-size: 2.5rem; font-weight: 700; background: var(--primary-gradient); -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent; }
-        .back-link { color: #667eea; text-decoration: none; font-weight: 600; }
-        .test-container { background: white; border-radius: 12px; padding: 30px; box-shadow: 0 5px 15px rgba(0,0,0,0.1); margin-bottom: 20px; }
-        .vulnerable-section { border-left: 4px solid var(--danger-color); padding-left: 20px; }
-        .secure-section { border-left: 4px solid var(--success-color); padding-left: 20px; }
-        .badge-vulnerable { background-color: var(--danger-color); padding: 5px 12px; border-radius: 20px; color: white; }
-        .badge-secure { background-color: var(--success-color); padding: 5px 12px; border-radius: 20px; color: white; }
-        .form-control { border-radius: 8px; border: 2px solid #e0e0e0; padding: 10px 15px; }
-        .btn-vulnerable { background: var(--danger-color); border: none; color: white; padding: 10px 30px; border-radius: 25px; }
-        .btn-secure { background: var(--success-color); border: none; color: white; padding: 10px 30px; border-radius: 25px; }
-        .result-box { border-radius: 8px; padding: 20px; margin-top: 20px; display: none; }
-        .result-box.critical { background: #f8d7da; border: 2px solid var(--danger-color); }
-        .result-box.safe { background: #d1e7dd; border: 2px solid var(--success-color); }
-        .query-box { background: #282c34; border-radius: 8px; padding: 15px; margin-top: 10px; }
-        .payload-item { transition: all 0.2s ease; }
-        .payload-item:hover { background: #e9ecef !important; transform: translateX(5px); }
     </style>
 </head>
 <body>
@@ -42,14 +25,14 @@
                     <label class="form-label">Cerca Nome</label>
                     <input type="text" class="form-control" id="nameVuln" required>
                 </div>
-                <button type="submit" class="btn btn-vulnerable">Testa</button>
+                <button type="submit" class="btn btn-vulnerable">Test</button>
             </form>
-            <div style="background: #f8f9fa; border-radius: 8px; padding: 15px; margin-top: 15px;">
+            <div class="payload-examples">
                 <h6><i class="fas fa-code"></i> Payload di Esempio (Clicca per usare):</h6>
-                <div class="payload-item" style="background: white; padding: 8px 12px; border-radius: 6px; margin-bottom: 5px; font-family: 'Courier New', monospace; font-size: 0.85rem; color: #dc3545; cursor: pointer;" onclick="document.getElementById('nameVuln').value=&quot;' UNION SELECT credit_card FROM sensitive_data--&quot;">
+                <div class="payload-item-styled" onclick="document.getElementById('nameVuln').value=&quot;' UNION SELECT credit_card FROM sensitive_data--&quot;">
                     <strong>Attacco UNION:</strong> ' UNION SELECT credit_card FROM sensitive_data--
                 </div>
-                <div class="payload-item" style="background: white; padding: 8px 12px; border-radius: 6px; margin-bottom: 5px; font-family: 'Courier New', monospace; font-size: 0.85rem; color: #dc3545; cursor: pointer;" onclick="document.getElementById('nameVuln').value=&quot;%' UNION SELECT 'SQLite ' || sqlite_version() --&quot;">
+                <div class="payload-item-styled" onclick="document.getElementById('nameVuln').value=&quot;%' UNION SELECT 'SQLite ' || sqlite_version() --&quot;">
                     <strong>Versione SQLite:</strong> %' UNION SELECT 'SQLite ' || sqlite_version() --
                 </div>
             </div>
