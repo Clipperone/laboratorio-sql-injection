@@ -6,12 +6,7 @@
     <title th:text="${pageTitle}">User Data Retrieval SQL Injection</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css" rel="stylesheet">
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/atom-one-dark.min.css" rel="stylesheet">
     <link href="/css/attack-pages.css" rel="stylesheet">
-    <style>
-        .main-container { max-width: 1400px; margin: 0 auto; }
-        .header-section { background: white; border-radius: 15px; padding: 30px; margin-bottom: 30px; box-shadow: 0 10px 30px rgba(0,0,0,0.2); }
-    </style>
 </head>
 <body>
     <div class="main-container">
@@ -23,8 +18,7 @@
         
         <div class="test-container vulnerable-section">
             <div class="section-title">
-                <i class="fas fa-bug"></i> Implementazione Vulnerabile
-                <span class="badge-vulnerable float-end">VULNERABILE</span>
+                <i class="fas fa-bug"></i> Inserisci l'ID per estrarre il nome utente associato
             </div>
             <form onsubmit="testVulnerable(event)">
                 <div class="mb-3">
@@ -45,10 +39,6 @@
             <div id="resultVulnerable" class="result-box"></div>
         </div>
     </div>
-    
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/sql.min.js"></script>
     <script>
         async function testVulnerable(event) {
             event.preventDefault();

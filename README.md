@@ -54,6 +54,10 @@ sql-injection-lab/
 │   │   └── resources/
 │   │       ├── application.properties                # Configurazione Applicazione
 │   │       ├── schema.sql                            # Schema Database
+│   │       ├── static/                               # Risorse statiche (CSS, JS, immagini)
+│   │       │   └── css/
+│   │       │       ├── dashboard.css                 # Stili centralizzati per dashboard
+│   │       │       └── attack-pages.css              # Stili centralizzati per pagine di attacco
 │   │       └── templates/                            # Template HTML Thymeleaf
 │   │           ├── dashboard.html                    # Pagina principale con 7 card di attacco
 │   │           ├── auth-bypass.html                  # Pagina attacco Authentication Bypass
@@ -62,8 +66,7 @@ sql-injection-lab/
 │   │           ├── time-based-blind.html             # Pagina attacco Time-Based Blind
 │   │           ├── boolean-blind.html                # Pagina attacco Boolean-Based Blind
 │   │           ├── error-based.html                  # Pagina attacco Error-Based
-│   │           ├── second-order.html                 # Pagina attacco Second Order
-│   │           └── attack-template.html              # Pattern template base
+│   │           └── second-order.html                 # Pagina attacco Second Order
 │   │
 │   └── test/
 │       ├── java/com/sqllib/
@@ -79,8 +82,7 @@ sql-injection-lab/
 ├── pom.xml                                            # Configurazione Maven
 ├── .gitignore                                         # Regole Git Ignore
 ├── SQL-Injection-Lab-Vulnerable.postman_collection.json  # Collezione Postman
-├── README.md                                          # Questo File (inglese)
-└── README_IT.md                                       # Questo File (italiano)
+└── README.md                                          # Documentazione progetto
 ```
 
 ## 🔄 Panoramica Architettura
@@ -150,6 +152,7 @@ L'applicazione include un'**interfaccia web interattiva** per testare gli attacc
 - 🎯 **Effetti Hover**: Feedback visivo sugli elementi interattivi
 - 🔄 **Pulsante Reset Database**: Ripristina il database allo stato iniziale con un click
 - 📊 **Risultati in Tempo Reale**: Vedi l'esecuzione della query, il tempo di risposta e i risultati dell'attacco
+- 🔍 **Syntax Highlighting**: Evidenziazione SQL con Prism.js per migliore leggibilità
 - 🎓 **Focus Educativo**: Impara i vettori di attacco SQL Injection
 
 #### **Pagine di Attacco Disponibili**:
@@ -352,7 +355,7 @@ Totale: 8 test di integrazione usando @SpringBootTest con database SQLite in-mem
 | Thymeleaf | Latest | Template Engine |
 | Bootstrap | 5.3.2 | Framework CSS |
 | Font Awesome | 6.4.2 | Libreria Icone |
-| Highlight.js | 11.9.0 | Evidenziazione Sintassi SQL |
+| Prism.js | 1.29.0 | Evidenziazione Sintassi SQL |
 
 ## 📝 Configurazione Applicazione
 

@@ -9,12 +9,21 @@
 </head>
 <body>
     <div class="container">
-        <div class="header">
-            <a href="/" style="color: #667eea; text-decoration: none;"><i class="fas fa-arrow-left"></i> Indietro</a>
-            <h1 class="mt-3">SQL Injection Time-Based Blind</h1>
+        <!-- Header -->
+        <div class="header-section">
+            <a href="/" class="back-link">
+                <i class="fas fa-arrow-left"></i> Torna alla Dashboard
+            </a>
+            <h1 class="page-title mt-3">SQL Injection Time-Based Blind</h1>
+            <p class="lead">Rileva injection misurando il tempo di risposta con la funzione SLEEP()</p>
         </div>
-        <div class="card p-4 vuln">
-            <h3>Vulnerabile</h3>
+        
+        <!-- Vulnerable Test -->
+        <div class="test-container vulnerable-section">
+            <div class="section-title">
+                <i class="fas fa-bug"></i> Verifica se il database accetta comandi di sleep
+            </div>
+            
             <form onsubmit="testVuln(event)">
                 <div class="mb-3">
                     <label>ID Utente</label>

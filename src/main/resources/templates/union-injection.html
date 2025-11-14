@@ -5,21 +5,19 @@
     <title th:text="${pageTitle}">UNION-Based SQL Injection</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css" rel="stylesheet">
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/atom-one-dark.min.css" rel="stylesheet">
     <link href="/css/attack-pages.css" rel="stylesheet">
-    <style>
-        .main-container { max-width: 1400px; margin: 0 auto; }
-        .header-section { background: white; border-radius: 15px; padding: 30px; margin-bottom: 30px; box-shadow: 0 10px 30px rgba(0,0,0,0.2); }
-    </style>
 </head>
 <body>
-    <div class="main-container">
+    <div class="container">
         <div class="header-section">
             <a href="/" class="back-link"><i class="fas fa-arrow-left"></i> Indietro</a>
             <h1 class="page-title mt-3">SQL Injection UNION-Based</h1>
+            <p class="lead" th:text="${description}">Estrai informazioni da altre tabelle usando il comando UNION</p>
         </div>
         <div class="test-container vulnerable-section">
-            <h3><i class="fas fa-bug"></i> Vulnerabile <span class="badge-vulnerable float-end">VULN</span></h3>
+            <div class="section-title">
+                <i class="fas fa-bug"></i> Inserisci un testo per ricercare l'utente
+            </div>
             <form onsubmit="testVulnerable(event)">
                 <div class="mb-3">
                     <label class="form-label">Cerca Nome</label>
@@ -40,7 +38,9 @@
         </div>
     </div>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-sql.min.js"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-tomorrow.min.css" rel="stylesheet">
     <script>
         async function testVulnerable(event) {
             event.preventDefault();
@@ -88,7 +88,9 @@
             `;
             
             el.innerHTML = html;
-            el.querySelectorAll('code').forEach(block => hljs.highlightElement(block));
+            if (typeof Prism !== 'undefined') {
+                Prism.highlightAllUnder(el);
+            }
         }
         
         function escapeHtml(text) {
